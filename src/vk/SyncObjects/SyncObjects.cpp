@@ -19,7 +19,7 @@ void App_SyncObjects::resize_ImagesInFlight() {
 	size_t size = SwapchainImages.size();
 	for (size_t i = 0; i < size; ++i) { 
 			ImagesInFlight.push_back(std::move(Device.createFence(fenceInfo)));
-			ImagesInFlight[i].clear();
+			// ImagesInFlight[i].clear();
 	}
 }
 

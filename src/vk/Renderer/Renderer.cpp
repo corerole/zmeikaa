@@ -1,19 +1,25 @@
 #include "Renderer.hpp"
 
+template<typename T> 
+static T& copy_ctor(T&) {
+	
+}
+
 #if 0
  void App_Renderer::render_frame() {};
 #else
 void App_Renderer::create_swap_chain() {
-		// vk_Buffers.create_buffers(); // my
-		vk_Swapchain.update_Swapchain();
-		vk_ImageViews.update();
-		vk_RenderPass.update_RenderPass();
-		vk_PipeLines.update_Pipeline();
-		vk_Framebuffer.update_framebuffers();
-		vk_CommandBuffers.update_CommandBuffers();
+	// vk_Buffers.create_buffers(); // my
+	vk_Swapchain.update_Swapchain();
+	vk_ImageViews.update();
+	vk_RenderPass.update_RenderPass();
+	vk_PipeLines.update_Pipeline();
+	vk_Framebuffer.update_framebuffers();
+	vk_CommandBuffers.update_CommandBuffers();
 }
 
 void App_Renderer::update_swap_chain() {
+	dbgs << "UPDATING SWAPCHAIN" << "\n";
 	int width = 0, height = 0;
 	glfwGetFramebufferSize(Window.get(), &width, &height);
 	while (width == 0 || height == 0) {
@@ -75,21 +81,14 @@ void App_Renderer::render_frame() {
 		throw std::runtime_error("failed to acquire swap chain image!");
 	}
 	
-	if((&(ImagesInFlight[imageIndex])) != VK_NULL_HANDLE) {
-		vk::Result res = Device.waitForFences(*ImagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
+	if(ImagesInFlight[imageIndex] != VK_NULL_HANDLE) {
+		dbgs << "Here\n";
+		vk::Result res = Device.waitForFences(*(ImagesInFlight[imageIndex]), VK_TRUE, UINT64_MAX);
 		VK_CHECK_RESULT(res);
 	}
 
-#if 0
-	size_t size = sizeof(vk::raii::Fence);
-	void* dest = new char[size];
-	void* src = (&(InFlightFences[CurrentFrame]));
-	std::memcpy(dest, src, size);
-	ImagesInFlight[imageIndex] = std::move((*((vk::raii::Fence*)dest)));
-	 
-	InFlightFences[CurrentFrame].release();
-#endif
-	
+	InFlightFences[CurrentFrame].swap(ImagesInFlight[imageIndex]);
+	// InFlightFences[CurrentFrame].release();
 
 	vk::PipelineStageFlags waitStages[] = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
 	vk::Semaphore waitSemaphores[] = { ImageAvailableSemaphores[CurrentFrame] };
@@ -105,6 +104,7 @@ void App_Renderer::render_frame() {
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphores;
 
+	Device.resetFences(*InFlightFences[CurrentFrame]);
 	GraphicsQueue.submit(submitInfo, InFlightFences[CurrentFrame]);
  
 	vk::SwapchainKHR swapChains[] = { vk_Swapchain.get() };
