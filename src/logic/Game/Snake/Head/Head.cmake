@@ -1,0 +1,1 @@
+add_library(Head OBJECT "${CMAKE_CURRENT_LIST_DIR}/Head.cpp")

@@ -3,6 +3,7 @@
 
 #include "Window/Window.hpp"
 #include "vk/vk.hpp"
+#include "logic/Game/Game.hpp"
 
 #include <iostream>
 

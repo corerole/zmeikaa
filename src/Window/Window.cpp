@@ -1,6 +1,9 @@
 #include "Window.hpp"
 
-#include <stdexcept>
+void App_Window::set_key_callback(kcb key_callback) {
+  glfwSetKeyCallback(window_, key_callback);
+}
+
 // custom error handler class
 struct glfw_error : public std::runtime_error {
     glfw_error(const char* s) : std::runtime_error(s) {}
