@@ -1,0 +1,1 @@
+add_library(random STATIC "${CMAKE_CURRENT_LIST_DIR}/random.cpp")
