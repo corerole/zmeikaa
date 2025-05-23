@@ -1,13 +1,22 @@
 #include "Field.hpp"
 
-std::vector<size_t>& Field::get() { return field_; }
+Field::Field(size_t width_, size_t height_, Snake& snake_)
+	:
+	width(width_),
+	height(height_),
+	snake(snake_)
+{
+	field.resize((width * height));
+}
+
+std::vector<size_t>& Field::get() { return field; }
 
 void Field::print_field() {
-	size_t h = height_;
-	size_t w = width_;
+	size_t h = height;
+	size_t w = width;
 	for (size_t i = 0; i < h; ++i) {
 		for (size_t j = 0; j < w; ++j) {
-			size_t res = field_[j + i * h];
+			size_t res = field[j + i * h];
 			dbgs << res << " ";
 		}
 		dbgs << "\n";
@@ -15,37 +24,32 @@ void Field::print_field() {
 }
 
 void Field::set_cell(size_t x, size_t y, size_t data) {
-	if (x >= width_ || y >= height_) {
+	if (x >= width || y >= height) {
 		dbgs << "error\n";
 		return;
 	}
-	field_[x + y * width_] = data;
-}
-
-Field::Field(size_t width, size_t height) {
-	width_ = width; height_ = height;
-	field_.resize((width * height));
+	field[x + y * width] = data;
 }
 
 void Field::gen_borders() {
 	//horizontal
-	for (size_t i = 0; i < width_; ++i) {
+	for (size_t i = 0; i < width; ++i) {
 		set_cell(i, 0, 1);
-		set_cell(i, (height_ - 1), 1);
+		set_cell(i, (height - 1), 1);
 	}
 	// vertical
-	for (size_t i = 0; i < height_; ++i) {
+	for (size_t i = 0; i < height; ++i) {
 		set_cell(0, i, 1);
-		set_cell((width_ - 1), i, 1);
+		set_cell((width - 1), i, 1);
 	}
 }
 
 size_t Field::get_cell(size_t x, size_t y) { // TODO
-	if (x >= width_ || y >= height_) {
+	if (x >= width || y >= height) {
 		throw std::runtime_error("error | (x >= width_ || y >= height_)");
 		return UINT64_MAX;
 	}
-	return field_[x + y * width_];
+	return field[x + y * width];
 }
 
 static std::pair<size_t, size_t> gen(size_t xm, size_t ym) {
@@ -55,18 +59,47 @@ static std::pair<size_t, size_t> gen(size_t xm, size_t ym) {
 }
 
 void Field::gen_apple() {
-	std::pair<size_t, size_t> res = gen(height_, width_);
+	std::pair<size_t, size_t> res = gen(height, width);
 	while (get_cell(res.first, res.second)) {
-		res = gen(height_, width_);
+		res = gen(height, width);
 	}
 	set_cell(res.first, res.second, 2);
 }
 
 void Field::add_snake(Snake& s) {
-	std::pair<size_t, size_t>& h = s.get_head();
-	std::list<std::pair<size_t, size_t>>& t = s.get_tail();
-	for (auto& x : field_) { if ((x == 3) || (x == 4)) { x = 0; } }
-	set_cell(h.first, h.second, 4);
-	for (auto x : t) { set_cell(x.first, x.second, 3); }
+	Head& h = s.get_Head();
+	Tail& t = s.get_Tail();
+	for (auto& x : field) { if ((x == 3) || (x == 4)) { x = 0; } }
+	set_cell(h.get().first, h.get().second, 4);
+	auto& tail_data = t.get();
+	for (auto& x : tail_data) { set_cell(x.first, x.second, 3); }
 }
 
+objects Field::get_new_cell(direction d) {
+	std::pair<size_t, size_t> tmp = snake.get_Head().get();
+	size_t nx = 99, ny = 99, res = 99;
+	switch(d) {
+		case (direction::eUp): 
+			nx = tmp.first;
+			ny = tmp.second + 1;
+			res = get_cell(nx, ny);
+			return objects(res);
+		case (direction::eDown):
+			nx = tmp.first;
+			ny = tmp.second - 1;
+			res = get_cell(nx, ny);
+			return objects(res);
+		case (direction::eLeft):
+			nx = tmp.first - 1;
+			ny = tmp.second;
+			res = get_cell(nx, ny);
+			return objects(res);
+		case (direction::eRight):
+			nx = tmp.first + 1;
+			ny = tmp.second;
+			res = get_cell(nx, ny);
+			return objects(res);
+		default: {}
+	}
+	return objects(99);
+}

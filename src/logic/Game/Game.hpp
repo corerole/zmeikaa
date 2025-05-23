@@ -3,6 +3,8 @@
 
 #include "Snake/Snake.hpp"
 #include "Field/Field.hpp"
+#include "glfw_key_def.hpp"
+#include "enums.hpp"
 
 struct GameSettings {
 	public:
@@ -13,18 +15,21 @@ struct GameSettings {
 };
 
 struct Game {
-	private:
-		Field field;
-		Snake snake;
-	public:
-		Game();
 	public:
 		GameSettings cfg;
-		std::vector<size_t>& get_field();
-		void play();
-		void check(size_t userinput);
+	private:
+		Snake snake;
+		Field field;
+		bool play = 0;
+	public:
+		void process(int glfw_keycode);
+	public:
+		Field& get_Field();
+		Snake& get_Snake();
+		Game();
+	public:
+		void prepare();
 		void check_apple();
-		void game_over();
 };
 
 #endif // !MY_GAMEHPP

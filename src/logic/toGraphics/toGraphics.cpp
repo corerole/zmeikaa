@@ -30,7 +30,7 @@ static rgb to_rgb(size_t a) {
   return {1.0f, 0.0f, 0.0f};
 }
 
-std::vector<rgb> to_color(std::vector<size_t>& field, size_t x, size_t y) {
+static std::vector<rgb> to_color(std::vector<size_t>& field, size_t x, size_t y) {
   std::vector<rgb> res;
   size_t res_size = ((x + 1) * (y + 1));
   res.resize(res_size);
@@ -49,14 +49,14 @@ std::vector<rgb> to_color(std::vector<size_t>& field, size_t x, size_t y) {
   return res;
 }
 
-rgb gen_rgb() {
+static rgb gen_rgb() {
   float r = get_random();
   float g = get_random();
   float b = get_random();
   return { r, g ,b };
 }
 
-std::vector<rgb> gen_color(size_t x, size_t y) {
+static std::vector<rgb> gen_color(size_t x, size_t y) {
   std::vector<rgb> res;
   res.resize(((x + 1) * (y + 1)));
   rgb color = gen_rgb();

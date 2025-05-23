@@ -20,10 +20,7 @@ include ("${CMAKE_CURRENT_LIST_DIR}/Renderer/Renderer.cmake")
 
 
 add_library(vk STATIC "${CMAKE_CURRENT_LIST_DIR}/vk.cpp")
-target_link_libraries(
-	vk 
-	PRIVATE
-	Vulkan::Vulkan
+target_link_libraries(vk PRIVATE Vulkan::Vulkan
 	dbg
 	Buffers
 	DebugMarker

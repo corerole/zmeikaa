@@ -1,8 +1,13 @@
 #include "Renderer.hpp"
 
 template<typename T> 
-static T& copy_ctor(T&) {
-	
+static T* copy_ctor(T& obj) {
+	const void* prx = static_cast<const void*>(&obj);
+	size_t size = sizeof(t);
+	void* tmp = new char[size];
+	void* cp_res = std::memcpy(tmp, prx, size);
+	T* res = static_cast<T*>(tmp);
+	return res;
 }
 
 #if 0
@@ -82,7 +87,6 @@ void App_Renderer::render_frame() {
 	}
 	
 	if(ImagesInFlight[imageIndex] != VK_NULL_HANDLE) {
-		dbgs << "Here\n";
 		vk::Result res = Device.waitForFences(*(ImagesInFlight[imageIndex]), VK_TRUE, UINT64_MAX);
 		VK_CHECK_RESULT(res);
 	}
@@ -128,6 +132,5 @@ void App_Renderer::render_frame() {
 	}
 
 	CurrentFrame = (CurrentFrame + 1) % (*FramesInFlight);
-	dbgs << "Frame Renderd\n";
 }
 #endif

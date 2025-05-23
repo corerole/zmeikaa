@@ -4,6 +4,7 @@
 #include <list>
 #include <utility>
 #include "../Head/Head.hpp"
+#include "../../../../trash/dbg.h"
 
 struct Tail {
 	private:
@@ -13,8 +14,8 @@ struct Tail {
 	public:
 		Tail(Head& head) : tailhead(head) {};
 		std::list<std::pair<size_t, size_t>>& get();
-		void move(Head& head);
-		void grow(Head& head);
+		void move();
+		void grow();
 };
 
 #endif

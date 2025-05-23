@@ -3,21 +3,25 @@
 Game::Game()
 	:
 	cfg(),
-	field(cfg.field_width, cfg.field_height),
-	snake(cfg.snake_start_pos_x, cfg.snake_start_pos_y)
+	snake(cfg.snake_start_pos_x, cfg.snake_start_pos_y),
+	field(cfg.field_width, cfg.field_height, snake)
 {
+	prepare();
 }
 
-std::vector<size_t>& Game::get_field() {
-	return field.get();
+Field& Game::get_Field() {
+	return field;
 }
 
-void Game::play() {
+Snake& Game::get_Snake() {
+	return snake;
+}
+
+void Game::prepare() {
 	field.gen_borders();
 	field.add_snake(snake);
+	play = 1;
 }
-
-void Game::game_over() {}
 
 static size_t step_to_apple = 5;
 static bool apple() {
@@ -39,40 +43,38 @@ void Game::check_apple() {
 	}
 }
 
-
-void Game::check(size_t n) {
-	bool play = true;
-
-	switch(n) {
-		case 0:
-			snake.get_head().go_up();
-			break;
-		case 1:
-			snake.get_head().go_down();
-			break;
-		case 2:
-			snake.get_head().go_left();
-			break;
-		case 3:
-			snake.get_head().go_right();
-			break;
-		default:
-			break;
+static direction to_direction(int glfw_keycode) {
+	switch(glfw_keycode) {
+		case (GLFW_KEY_W): return direction::eUp;
+		case (GLFW_KEY_A): return direction::eLeft;
+		case (GLFW_KEY_S): return direction::eDown;
+		case (GLFW_KEY_D): return direction::eRight;
 	}
+	return direction::eUnknown;
+}
 
-	auto& newPos = snake.get_head().get();
-
-	size_t res = field.get_cell(newPos.first, newPos.second);
-	switch(res) {
-	case 0:
-		snake.get_tail().move(snake.get_head());
-		break;
+static action reaction(objects in) {
+	switch (in) {
+		case (objects::eClear):	return action::eMove;
+		case (objects::eApple): return action::eGrow;
+		case (objects::eWall): return action::eGameOver;
+		case (objects::eTail): return action::eGameOver;
+		case (objects::eHead): return action::eGameOver;
+		default: {}
 	}
+	return action::eGameOver;
+}
 
-	if (res == 0) { snake.get_tail().step(); }
-	if (res == 1) { play = false; }
-	if (res == 2) { snake.get_tail().grow(); }
-	if (res == 3) { play = false; }
-	if (res > 3) { play = false; }
+void Game::process(int glfw_keycode) {
+	if(!play) {return;}
+	direction dire = to_direction(glfw_keycode);
+	dbgs << "Direction: " << size_t(dire) << " | ";
+	objects res = field.get_new_cell(dire);
+	dbgs << "Object: " << size_t(res) << " | ";
+	action act = reaction(res);
+	dbgs << "Action: " << size_t(act) << "\n";
+	if(act == action::eGameOver) { play = false; return; }
+	snake.go(dire, act);
 	check_apple();
+	field.print_field();
 }

@@ -8,4 +8,6 @@
 #include <iostream>
 #include <vector>
 
+void setup_VaI(size_t size_x, size_t size_y, std::vector<size_t>& field);
+
 #endif

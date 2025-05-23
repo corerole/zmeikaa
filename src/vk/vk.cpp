@@ -20,17 +20,7 @@
 #include "SyncObjects/SyncObjects.hpp"
 #include "Renderer/Renderer.hpp"
 
-
-#if 1
-#define EXCEPTION 1
-#endif
-
-void run_vk(App_Window& wnd)
-#ifndef EXCEPTION
-{
-#else
-try {
-#endif // !EXCEPTION
+void run_vk(App_Window& wnd) {
 	vk::raii::Context context;
 	App_Instance				vk_instance(context);
 	// App_DebugUtils			vk_debugutils(vk_instance.get());

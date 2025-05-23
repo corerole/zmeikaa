@@ -2,26 +2,21 @@
 #define MY_GAMESNAKE
 
 #include "../../../trash/dbg.h"
+#include "../enums.hpp"
 #include "Head/Head.hpp"
 #include "Tail/Tail.hpp"
 #include <utility>
 #include <list>
-
-struct XY {
-	size_t x = 0;
-	size_t y = 0;
-};
 
 struct Snake {
 	private:
 		Head head;
 		Tail tail;
 	public:
-		void move();
-		void grow();
+		void go(direction d, action a);
 	public:
-		Tail& get_tail();
-		Head& get_head();
+		Tail& get_Tail();
+		Head& get_Head();
 		Snake(size_t startx, size_t starty);
 };
 
