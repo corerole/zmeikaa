@@ -21,14 +21,24 @@ void App_Window::set_frabuffer_resized() {
     FramebufferResized = true;
 }
 
-bool* App_Window::get_frabuffer_resized() {
-    return &FramebufferResized;
+bool& App_Window::get_frabuffer_resized() {
+    return FramebufferResized;
+}
+
+const bool& App_Window::get_frabuffer_resized() const {
+  return FramebufferResized;
 }
 
 FramebufferSize App_Window::getFramebufferSize() {
     int w = 0, h = 0;
     glfwGetFramebufferSize(window_, &w, &h);
     return FramebufferSize(w, h);
+}
+
+const FramebufferSize App_Window::getFramebufferSize() const {
+  int w = 0, h = 0;
+  glfwGetFramebufferSize(window_, &w, &h);
+  return FramebufferSize(w, h);
 }
 
 App_Window::App_Window() {

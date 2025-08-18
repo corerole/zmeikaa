@@ -34,8 +34,10 @@ struct App_Window {
 		void main_loop();
 		GLFWwindow* get();
 		FramebufferSize getFramebufferSize();
+		const FramebufferSize getFramebufferSize() const;
 		void set_frabuffer_resized();
-		bool* get_frabuffer_resized();
+		bool& get_frabuffer_resized();
+		const bool& get_frabuffer_resized() const;
 		App_Window();
 		~App_Window();
 };

@@ -18,6 +18,7 @@ struct Field {
 	public:
 		objects get_new_cell(direction dir);
 	public:
+		void reset();
 		void print_field();
 		void gen_borders();
 		void gen_apple();

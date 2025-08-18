@@ -5,6 +5,24 @@
 #include <vector>
 #include "../../trash/dbg.h"
 
+namespace vk {
+	namespace supp {
+		void set_CommandBuffers(
+			std::vector<vk::raii::CommandBuffer>& CommandBuffers,
+			const std::vector<vk::raii::Framebuffer>& SwapchainFramebuffers,
+			const vk::raii::CommandPool& CommandPool,
+			const vk::raii::Device& Device,
+			const vk::raii::RenderPass& RenderPass,
+			const vk::Extent2D& SwapchainExtent,
+			const vk::raii::Pipeline& Pipeline,
+			const vk::raii::Buffer& VertexBuffer,
+			const vk::raii::Buffer& IndexBuffer,
+			const std::vector<unsigned short>& Indices
+		);
+	}
+}
+
+#if 0
 struct App_CommandBuffers {
 	private:
 		std::vector<vk::raii::CommandBuffer> CommandBuffers;
@@ -49,5 +67,6 @@ struct App_CommandBuffers {
 
 		std::vector<vk::raii::CommandBuffer>& get_CommandBuffers() { return CommandBuffers; };
 };
+#endif
 
 #endif

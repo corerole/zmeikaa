@@ -22,28 +22,118 @@
 
 void run_vk(App_Window& wnd) {
 	vk::raii::Context context;
-	App_Instance				vk_instance(context);
-	// App_DebugUtils			vk_debugutils(vk_instance.get());
-	App_Surface					vk_surface(wnd.get(),	vk_instance.get());
-	App_PhysicalDevice	vk_physicaldevice(vk_instance.get());
-	App_QueueFamily			vk_queuefamily(vk_physicaldevice.get(), vk_surface.get());
-	App_LogicalDevice		vk_logicaldevice(vk_physicaldevice.get(), vk_queuefamily);
-	DebugMarker					marker(vk_logicaldevice.get());
-	App_LogicalQueue		vk_logicalqueue(vk_logicaldevice.get(), vk_queuefamily);
-	App_Swapchain				vk_swapchain(vk_physicaldevice.get(), vk_surface.get(), wnd, vk_logicaldevice.get(), vk_queuefamily);
-	App_ImageViews			vk_imageviews(vk_logicaldevice.get(), vk_swapchain.get(), vk_swapchain.get_SurfaceFormatKHR(), vk_swapchain.get_Extent2D());
-	App_RenderPass			vk_renderpass(vk_logicaldevice.get(), vk_imageviews.get_SwapchainImageFormat());
-	App_PipeLines				vk_pipelines(vk_logicaldevice.get(),	vk_imageviews.get_SwapchainExtent(), vk_renderpass.get_RenderPass());
-	App_Framebuffer			vk_framebuffer(vk_imageviews.get_SwapchainImageViews(), vk_logicaldevice.get(), vk_renderpass.get_RenderPass(), vk_imageviews.get_SwapchainExtent());
-	App_CommandPool			vk_commandpool(vk_logicaldevice.get(), vk_queuefamily);
+	vk::raii::Instance instance = vk::supp::get_Instance(context);
+	vk::raii::DebugUtilsMessengerEXT messenger = vk::supp::get_DebugUtils(instance);
+	vk::raii::SurfaceKHR surface = vk::supp::get_Surface(wnd.get(), instance);
+	vk::raii::PhysicalDevice physical_device = vk::supp::get_PhysicalDevice(instance);
+	auto GaPQF = vk::supp::get_QueueFamilies(physical_device, surface);
+	vk::raii::Device device = vk::supp::get_LogicalDevice(physical_device, GaPQF);
+	vk::raii::CommandPool commandpool = vk::supp::get_CommandPool(device, GaPQF);
+	DebugMarker marker(device);
+	vk::raii::Queue graphics_queue(device, GaPQF.first, 0);
+	vk::raii::Queue present_queue(device, GaPQF.second, 0);
+	auto StoredVertexID = installShader((readFile(VERTNAME)), device);
+	auto StoredFragmentID = installShader((readFile(FRAGNAME)), device);
+	vk::SurfaceFormatKHR surface_format = vk::supp::get_SurfaceFormatKHR(physical_device, surface);
+	vk::Extent2D extent = vk::supp::get_Extent2D(physical_device, surface, wnd);
+	vk::raii::PipelineCache pipeline_cache = vk::supp::get_PipelineCache(device);
+	vk::raii::PipelineLayout pipeline_layout = vk::supp::get_PipelineLayout(device);
 	bool DeviceMemMap2 = false;
+	App_Buffers vk_buffers(device, physical_device, commandpool, graphics_queue, DeviceMemMap2, Vertices, Indices);
+
 	uint32_t MaxFramesInFlight = MAX_FRAMES_IN_FLIGHT;
-	App_Buffers					vk_buffers(vk_logicaldevice.get(), vk_physicaldevice.get(), vk_commandpool.get(), vk_logicalqueue.getGraphicsQueue(), DeviceMemMap2, Vertices, Indices);
-	App_CommandBuffers	vk_commandbuffers(vk_framebuffer.get_SwapchainFramebuffers(), vk_commandpool.get(), vk_logicaldevice.get(), vk_renderpass.get_RenderPass(), vk_imageviews.get_SwapchainExtent(), vk_pipelines.get(), vk_buffers.get_VertexBuffer(), vk_buffers.get_IndexBuffer(), Indices);
-	App_SyncObjects			vk_syncobjects(vk_imageviews.get_SwapchainImages(), vk_logicaldevice.get(), MaxFramesInFlight);
-	App_Renderer				vk_renderer(wnd, vk_commandpool, vk_logicaldevice, vk_syncobjects, vk_swapchain,
-																	vk_imageviews, vk_renderpass, vk_pipelines, vk_framebuffer, vk_commandbuffers,
-																	vk_logicalqueue, vk_buffers, &MaxFramesInFlight);
+
+	App_Renderer renderer(
+		device,
+		physical_device,
+		surface,
+		GaPQF,
+		surface_format,
+		extent,
+		StoredVertexID,
+		StoredFragmentID,
+		pipeline_cache,
+		pipeline_layout,
+		commandpool,
+		vk_buffers.get_VertexBuffer(),
+		vk_buffers.get_IndexBuffer(),
+		graphics_queue,
+		present_queue,
+		wnd.get(),
+		MaxFramesInFlight,
+		wnd.get_frabuffer_resized()
+	);
+
+	while (!glfwWindowShouldClose(wnd.get())) {
+		glfwPollEvents();
+		renderer.render_frame();
+	}
+
+	device.waitIdle();
+
+
+#if 0
+	vk::raii::SwapchainKHR swapchain = vk::supp::get_Swapchain(device, physical_device, surface, GaPQF, surface_format, extent);
+	std::vector<vk::Image> swapchain_images = swapchain.getImages();
+	std::vector<vk::raii::ImageView> swapchain_imageviews;
+	vk::supp::set_ImageViews(device, surface_format.format, swapchain_images, swapchain_imageviews);
+	vk::raii::RenderPass renderpass = vk::supp::get_RenderPass(device, surface_format.format);
+	vk::raii::Pipeline pipeline = vk::supp::get_PipeLine(
+		device, StoredVertexID, StoredFragmentID,	extent,
+		renderpass,	pipeline_cache,	pipeline_layout
+	);
+	std::vector<vk::raii::Framebuffer> swapchain_framebuffers;
+	vk::supp::set_SwapchainFramebuffers(
+		swapchain_framebuffers,
+		device,
+		renderpass,
+		extent,
+		swapchain_imageviews
+	);
+
+	std::vector<vk::raii::CommandBuffer> command_buffers;
+
+	vk::supp::set_CommandBuffers(
+		command_buffers,
+		swapchain_framebuffers,
+		commandpool,
+		device,
+		renderpass,
+		extent,
+		pipeline,
+		vk_buffers.get_VertexBuffer(),
+		vk_buffers.get_IndexBuffer(),
+		Indices
+	);
+
+	uint32_t MaxFramesInFlight = MAX_FRAMES_IN_FLIGHT;
+
+#if 0
+	App_SyncObjects vk_syncobjects(
+		swapchain_images,
+		device,
+		MaxFramesInFlight
+	);
+#endif
+#endif
+
+#if 0
+
+	App_Renderer vk_renderer(
+		wnd,
+		vk_commandpool,
+		vk_logicaldevice,
+		vk_syncobjects,
+		vk_swapchain,
+		vk_imageviews,
+		vk_renderpass,
+		vk_pipelines,
+		vk_framebuffer,
+		vk_commandbuffers,
+		vk_logicalqueue,
+		vk_buffers,
+		&MaxFramesInFlight
+	);
 
 	dbgs << "Enter in loop... \n";
 	while (!glfwWindowShouldClose(wnd.get())) {
@@ -52,4 +142,5 @@ void run_vk(App_Window& wnd) {
 	}
 
 	vk_logicaldevice.get().waitIdle();
+	#endif
 }

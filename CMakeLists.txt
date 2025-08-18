@@ -5,6 +5,9 @@ cmake_minimum_required(VERSION 3.20.0)
 
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+
 # Включение горячей перезагрузки для компиляторов MSVC, если поддерживается.
 if (POLICY CMP0141)
   cmake_policy(SET CMP0141 NEW)
@@ -13,7 +16,7 @@ endif()
 
 project ("zmeikaa")
 
-# include_directories(${glfw_INCLUDE_DIR} ${Vulkan_INCLUDE_DIR} ${glm_INCLUDE_DIR})
+# include_directories(${glfw_ICLUDE_DIR} ${Vulkan_INCLUDE_DIR} ${glm_INCLUDE_DIR})
 
 include("${CMAKE_CURRENT_LIST_DIR}/dep/dep.cmake")
 
@@ -23,5 +26,5 @@ include("${CMAKE_CURRENT_LIST_DIR}/dep/dep.cmake")
 
 include("${CMAKE_CURRENT_LIST_DIR}/src/main.cmake")
 
-set_property(TARGET zmeikaa PROPERTY CXX_STANDARD 23)
+# set_target_properties(zmeikaa PROPERTIES CXX_STANDARD 23 CXX_STANDARD_REQUIRED TRUE)
 

@@ -1,34 +1,66 @@
 #include "QueueFamilies.hpp"
 
-App_QueueFamily::App_QueueFamily(vk::raii::PhysicalDevice& PhysicalDevice_,
-                                vk::raii::SurfaceKHR& Surface_) : PhysicalDevice(PhysicalDevice_), Surface(Surface_)
-{
-    std::vector<vk::QueueFamilyProperties> queueFamilies = PhysicalDevice.getQueueFamilyProperties();
+#if 1
 
-    uint32_t i = 0;
-    dbgs << (queueFamilies.size()) << " queue families found\n";
+namespace vk {
+	namespace supp {
+		std::pair<uint32_t, uint32_t> get_QueueFamilies(
+			const vk::raii::PhysicalDevice& PhysicalDevice,
+			const vk::raii::SurfaceKHR& Surface)
+		{
+			std::pair<uint32_t, uint32_t> GaP;
+			std::vector<vk::QueueFamilyProperties> queueFamilies = PhysicalDevice.getQueueFamilyProperties();
+			dbgs << (queueFamilies.size()) << " queue families found";
 
-    for (const auto& queueFamily : queueFamilies) {
-        if (queueFamily.queueFlags & vk::QueueFlagBits::eGraphics) {
-            GraphicsQueueFamily.val = i;
-            dbgs << "Graphics queue family: " << i << std::endl;
-        }
+			uint32_t i = 0;
+			dbgs << "\nGQFi : ";
+			std::vector<uint32_t> GraphicQueueFamilyIndices;
+			for (const auto& queueFamily : queueFamilies) {
+				if (queueFamily.queueFlags & vk::QueueFlagBits::eGraphics) {
+					GaP.first = i;
+					GraphicQueueFamilyIndices.push_back(i);
+					dbgs << i << ", ";
+				}
+				++i;
+			}
 
-        VkBool32 presentSupport = PhysicalDevice.getSurfaceSupportKHR(i, Surface);
+			i = 0;
+			dbgs << "\nPQFi : ";
+			std::vector<uint32_t> PresentQueueFamilyIndices;
+			for (const auto& queueFamily : queueFamilies) {
+				if (PhysicalDevice.getSurfaceSupportKHR(i, Surface)) {
+					GaP.second = i;
+					PresentQueueFamilyIndices.push_back(i);
+					dbgs << i << ", ";
+				}
+				++i;
+			}
 
-        if (presentSupport) {
-            PresentQueueFamily.val = i;
-            dbgs << "Present queue family: " << i << std::endl;
-        }
+	
+			for (const auto& x : PresentQueueFamilyIndices) {
+				auto find_same_ixd = [x](const auto& it) {
+					if(x == it) { return true; }
+					return false;
+				};
+
+				auto iter = std::find_if(
+					GraphicQueueFamilyIndices.begin(),
+					GraphicQueueFamilyIndices.end(),
+					find_same_ixd
+				);
+
+				if(iter != GraphicQueueFamilyIndices.end()) {
+					GaP.first = *iter;
+					GaP.second = GaP.first;
+					break;
+				}
+			}
+
+			dbgs << "\n";
+			return GaP;
+		}
+	} // supp ns
+} // vk ns
 
 
-        if (((PresentQueueFamily.val) != UINT_MAX) && ((GraphicsQueueFamily.val) != UINT_MAX)) { //
-            break;
-        }
-
-        i += 1;
-    }
-
-    if (((PresentQueueFamily.val) == UINT_MAX) || ((GraphicsQueueFamily.val) == UINT_MAX))
-        throw std::runtime_error("Present and Graphics not found");
-}
+#endif

@@ -1,5 +1,7 @@
 #include "Buffers.hpp"
 
+namespace {
+
 template <typename T>
 static size_t vectorsizeof(const std::vector<T>& vec) {
 	return sizeof(T) * vec.size();
@@ -18,7 +20,7 @@ static unsigned findMemoryType(unsigned typeFilter, vk::MemoryPropertyFlags prop
 }
 #endif
 
-static unsigned findMemoryType(unsigned typeFilter, vk::MemoryPropertyFlags properties, vk::raii::PhysicalDevice& PhysDevice) {
+static unsigned findMemoryType(unsigned typeFilter, vk::MemoryPropertyFlags properties, const vk::raii::PhysicalDevice& PhysDevice) {
 	vk::PhysicalDeviceMemoryProperties memProperties = PhysDevice.getMemoryProperties();
 	dbgs << memProperties.memoryTypeCount << " memory types found\n";
 	for (unsigned i = 0; i < memProperties.memoryTypeCount; ++i) {
@@ -29,9 +31,11 @@ static unsigned findMemoryType(unsigned typeFilter, vk::MemoryPropertyFlags prop
 	throw std::runtime_error("failed to find suitable memory type!");
 }
 
-static std::unique_ptr<vk::raii::Buffer> createBuffer(vk::raii::Device& Device,
-	vk::DeviceSize& bufferSize,
-	vk::BufferUsageFlags usage) {
+static std::unique_ptr<vk::raii::Buffer> createBuffer(
+	const vk::raii::Device& Device,
+	const vk::DeviceSize& bufferSize,
+	const vk::BufferUsageFlags usage
+) {
 	vk::BufferCreateInfo bufferInfo{};
 	bufferInfo.sType = vk::StructureType::eBufferCreateInfo;
 	bufferInfo.flags = vk::BufferCreateFlags();
@@ -42,11 +46,12 @@ static std::unique_ptr<vk::raii::Buffer> createBuffer(vk::raii::Device& Device,
 	return std::make_unique<vk::raii::Buffer>(Device, bufferInfo);
 }
 
-static std::unique_ptr<vk::raii::DeviceMemory> createBufferMemory(vk::raii::Device& Device,
-	vk::raii::PhysicalDevice& PhysDevice,
-	vk::raii::Buffer& Buffer,
-	vk::MemoryPropertyFlags properties)
-{
+static std::unique_ptr<vk::raii::DeviceMemory> createBufferMemory(
+	const vk::raii::Device& Device,
+	const vk::raii::PhysicalDevice& PhysDevice,
+	const vk::raii::Buffer& Buffer,
+	const vk::MemoryPropertyFlags properties
+) {
 	vk::MemoryRequirements memRequirements = Buffer.getMemoryRequirements();
 
 	vk::MemoryAllocateInfo allocInfo{};
@@ -56,14 +61,14 @@ static std::unique_ptr<vk::raii::DeviceMemory> createBufferMemory(vk::raii::Devi
 
 	vk::raii::DeviceMemory bufferMemory = Device.allocateMemory(allocInfo);
 
-	vk::BindBufferMemoryInfo bindBufferMemoryInfo{};
-	bindBufferMemoryInfo.sType = vk::StructureType::eBindBufferMemoryInfo;
-	bindBufferMemoryInfo.buffer = Buffer;
-	bindBufferMemoryInfo.memory = bufferMemory;
-	bindBufferMemoryInfo.memoryOffset = 0;
-
 	bool bindBufferMemory2 = false;
 	if(bindBufferMemory2) {
+		vk::BindBufferMemoryInfo bindBufferMemoryInfo{};
+		bindBufferMemoryInfo.sType = vk::StructureType::eBindBufferMemoryInfo;
+		bindBufferMemoryInfo.buffer = Buffer;
+		bindBufferMemoryInfo.memory = bufferMemory;
+		bindBufferMemoryInfo.memoryOffset = 0;
+
 		Device.bindBufferMemory2(bindBufferMemoryInfo);
 		return std::make_unique<vk::raii::DeviceMemory>(std::move(bufferMemory));
 	}	
@@ -74,13 +79,14 @@ static std::unique_ptr<vk::raii::DeviceMemory> createBufferMemory(vk::raii::Devi
 	return std::make_unique<vk::raii::DeviceMemory>(std::move(bufferMemory));
 }
 
-static void copyBuffer(vk::raii::Buffer& srcBuffer,
-	vk::raii::Buffer& dstBuffer,
-	vk::DeviceSize& size,
-	vk::raii::Device& Device,
-	vk::raii::CommandPool& CommandPool,
-	vk::raii::Queue& GraphicsQueue)
-{
+static void copyBuffer(
+	const vk::raii::Buffer& srcBuffer,
+	const vk::raii::Buffer& dstBuffer,
+	const vk::DeviceSize& size,
+	const vk::raii::Device& Device,
+	const vk::raii::CommandPool& CommandPool,
+	const vk::raii::Queue& GraphicsQueue
+) {
 	vk::CommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = vk::StructureType::eCommandBufferAllocateInfo;
 	allocInfo.level = vk::CommandBufferLevel::ePrimary;
@@ -105,8 +111,8 @@ static void copyBuffer(vk::raii::Buffer& srcBuffer,
 	copyRegion.dstOffset = 0;
 	copyRegion.srcOffset = 0;
 
-	bool bug = 0;
-	if(!bug) {
+	bool bug = 1;
+	if(bug) {
 		CommandBuffer.copyBuffer(srcBuffer, dstBuffer, copyRegion);
 	} else {
 		uint32_t regionCount = 0;
@@ -130,8 +136,17 @@ static void copyBuffer(vk::raii::Buffer& srcBuffer,
 
 	//vkFreeCommandBuffers((*LocalDevice), (*CommandPool), 1, &commandBuffer);
 }
-	
-void App_Buffers::create_buffers() {
+
+} // annon ns
+
+void App_Buffers::get_Buffers(
+	const vk::raii::Device& Device,
+	const vk::raii::PhysicalDevice& PhysDevice,
+	const std::vector<Vertex>& Vertices,
+	const std::vector<unsigned short>& Indices,
+	const vk::raii::CommandPool& CommandPool,
+	const vk::raii::Queue& GraphicsQueue
+) {
 	{
 		vk::DeviceSize bufferSize = vectorsizeof(Vertices);
 
@@ -151,9 +166,10 @@ void App_Buffers::create_buffers() {
 		memoryMapInfo.size = bufferSize;
 
 		void* data;
-		if (DevicemapMemory2) {
+		if (DeviceMapMemory2) {
 			data = Device.mapMemory2(memoryMapInfo);
-		}	else {
+		}
+		else {
 			VkResult res = vkMapMemory(*Device, *(*(stagingBufferMemory)), 0, bufferSize, 0, &data);
 			VK_CHECK_RESULT(vk::Result(res));
 		}
@@ -165,9 +181,10 @@ void App_Buffers::create_buffers() {
 		memoryUnmapInfo.flags = vk::MemoryUnmapFlags();
 		memoryUnmapInfo.memory = *stagingBufferMemory;
 
-		if (DevicemapMemory2) {
+		if (DeviceMapMemory2) {
 			Device.unmapMemory2(memoryUnmapInfo);
-		}	else {
+		}
+		else {
 			vkUnmapMemory(*Device, **stagingBufferMemory);
 		}
 
@@ -176,7 +193,7 @@ void App_Buffers::create_buffers() {
 		VertexBuffer = createBuffer(Device, bufferSize, vertexUsage);
 		VertexBufferMemory = createBufferMemory(Device, PhysDevice, *VertexBuffer, vertexProperties);
 
-		copyBuffer(*stagingBuffer, *VertexBuffer,	bufferSize,	Device,	CommandPool, GraphicsQueue);
+		copyBuffer(*stagingBuffer, *VertexBuffer, bufferSize, Device, CommandPool, GraphicsQueue);
 
 		stagingBuffer.reset();
 		stagingBufferMemory.reset();
@@ -202,9 +219,10 @@ void App_Buffers::create_buffers() {
 		memoryMapInfo.size = bufferSize;
 
 		void* data;
-		if (DevicemapMemory2) {
+		if (DeviceMapMemory2) {
 			data = Device.mapMemory2(memoryMapInfo);
-		}	else {
+		}
+		else {
 			VkResult res = vkMapMemory(*Device, *(*(stagingBufferMemory.get())), 0, bufferSize, 0, &data);
 			VK_CHECK_RESULT(vk::Result(res));
 		}
@@ -216,9 +234,10 @@ void App_Buffers::create_buffers() {
 		memoryUnmapInfo.flags = vk::MemoryUnmapFlags();
 		memoryUnmapInfo.memory = (*(stagingBufferMemory.get()));
 
-		if (DevicemapMemory2) {
+		if (DeviceMapMemory2) {
 			Device.unmapMemory2(memoryUnmapInfo);
-		} else {
+		}
+		else {
 			vkUnmapMemory(*Device, **stagingBufferMemory);
 		}
 

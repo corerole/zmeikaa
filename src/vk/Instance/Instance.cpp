@@ -1,25 +1,27 @@
 #include "Instance.hpp"
 
-static vk::ApplicationInfo get_default_ApplicationInfo() {
+namespace {
+
+static vk::ApplicationInfo get_default_ApplicationInfo(const vk::raii::Context& ctx) {
 	vk::ApplicationInfo appInfo{};
 	appInfo.sType = vk::StructureType::eApplicationInfo;
 	appInfo.pApplicationName = "Hello Clowns:)";
-	appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+	appInfo.applicationVersion = VK_MAKE_VERSION(1, 1, 1);
 	appInfo.pEngineName = "My app engine";
-	appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-	appInfo.apiVersion = VK_API_VERSION_1_0;
+	appInfo.engineVersion = VK_MAKE_VERSION(1, 1, 1);
+	appInfo.apiVersion = ctx.enumerateInstanceVersion();
 	return appInfo;
 }
 
 static vk::InstanceCreateInfo get_default_InstanceCreateInfo(
-	std::vector<const char*>& requiredExtensions,
-	std::vector<const char*>& enabledLayers,
+	const std::vector<const char*>& requiredExtensions,
+	const std::vector<const char*>& enabledLayers,
 	vk::ApplicationInfo *appInfo)
 {
-	vk::InstanceCreateInfo createInfo {};
+	vk::InstanceCreateInfo createInfo{};
 	createInfo.sType = vk::StructureType::eInstanceCreateInfo;
 	createInfo.pApplicationInfo = appInfo;
-	createInfo.flags |= vk::InstanceCreateFlagBits::eEnumeratePortabilityKHR;
+	createInfo.flags; //|= vk::InstanceCreateFlagBits::eEnumeratePortabilityKHR;
 	createInfo.ppEnabledLayerNames = enabledLayers.data();
 	createInfo.enabledLayerCount = (uint32_t)enabledLayers.size();
 	createInfo.ppEnabledExtensionNames = requiredExtensions.data();
@@ -27,43 +29,77 @@ static vk::InstanceCreateInfo get_default_InstanceCreateInfo(
 	return createInfo;
 }
 
-static std::vector<const char*> get_extention() {
+static std::vector<const char*> get_extension() {
 	std::vector<const char*> requiredExtensions;
 	uint32_t glfwExtensionCount = 0;
 	const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-	dbgs << "Enumerated: " << glfwExtensionCount + 1 << " glfw required extensions\n";
-
+	requiredExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+	// requiredExtensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+	// requiredExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 	for (uint32_t i = 0; i < glfwExtensionCount; i++) {
-		dbgs << " " << (i+1) << " | " << glfwExtensions[i] << "\n";
 		requiredExtensions.push_back(glfwExtensions[i]);
 	}
 
-	requiredExtensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
-	size_t beta = requiredExtensions.size() - 1;
-	dbgs << " " << (beta+1) << " | " << requiredExtensions[beta] << "\n";
+	dbgs << "Used Extension: \n";
+	for(auto& x : requiredExtensions) {
+		dbgs << "  " << x << "\n";
+	}
+	dbgs << "\n";
+
 	return requiredExtensions;
 }
 
 static std::vector<const char*> get_layers() {
-	std::vector<const char*> validationLayers;
-	validationLayers.push_back("VK_LAYER_KHRONOS_validation");
-	return validationLayers;
+	std::vector<const char*> layersNames = {
+		"VK_LAYER_KHRONOS_validation\0"
+	};
+
+	dbgs << "Enabled Layers:\n";
+	for(auto& x : layersNames) {
+		dbgs << "  " << x << "\n";
+	}
+	dbgs << "\n";
+
+	return layersNames;
 }
 
-App_Instance::App_Instance(vk::raii::Context& context) {
-	vk::ApplicationInfo appInfo = get_default_ApplicationInfo();
-	std::vector<const char*> requiredExtensions = get_extention();
+} // annon ns
 
-	std::vector<vk::LayerProperties> layerProperties = context.enumerateInstanceLayerProperties();
-	uint32_t instanceVersion = context.enumerateInstanceVersion();
-	std::vector<vk::ExtensionProperties> extensionProperties = context.enumerateInstanceExtensionProperties();
+namespace vk {
+	namespace supp {
+		vk::raii::Instance get_Instance(const vk::raii::Context& context) {
+			auto extensions = get_extension();
+			auto layers = get_layers();
+			auto appInfo = get_default_ApplicationInfo(context);
+			auto createInfo = get_default_InstanceCreateInfo(extensions, layers, &appInfo);
+			return vk::raii::Instance(context, createInfo);
+		}
+	}
+}
 
-	std::vector<const char*> validationLayers = get_layers();
+#if 0
+static std::unique_ptr<vk::raii::Instance> get_Instance(const vk::raii::Context& ctx) {
+	auto l = ;
+	auto e = ;
+	auto a = ;
+	auto i = get_default_InstanceCreateInfo(e, l, &a);
+	return ;
+}
+#endif
 
-	vk::InstanceCreateInfo createInfo = get_default_InstanceCreateInfo(requiredExtensions, validationLayers, &appInfo);
-	
-	Instance = std::make_unique<vk::raii::Instance>(context, createInfo);
+#if 0
+
+App_Instance::App_Instance(vk::raii::Context& context)
+	:
+	extensions(get_extension()),
+	layers(get_layers()),
+	appInfo(get_default_ApplicationInfo(context)),
+	createInfo(get_default_InstanceCreateInfo(extensions, layers, &appInfo)),
+	Instance(std::make_unique<vk::raii::Instance>(context, createInfo))
+{
 	dbgs << "Instance Created!\n";
 }
 
 vk::raii::Instance& App_Instance::get() { return *Instance; }
+
+#endif

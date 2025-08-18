@@ -73,8 +73,13 @@ void Game::process(int glfw_keycode) {
 	dbgs << "Object: " << size_t(res) << " | ";
 	action act = reaction(res);
 	dbgs << "Action: " << size_t(act) << "\n";
-	if(act == action::eGameOver) { play = false; return; }
+	if(act == action::eGameOver) { reset(); return; }
 	snake.go(dire, act);
 	check_apple();
 	field.print_field();
+}
+
+void Game::reset() {
+	snake.reset(cfg.snake_start_pos_x, cfg.snake_start_pos_y);
+	field.reset();
 }

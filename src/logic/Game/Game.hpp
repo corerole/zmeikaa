@@ -23,6 +23,7 @@ struct Game {
 		bool play = 0;
 	public:
 		void process(int glfw_keycode);
+		void reset();
 	public:
 		Field& get_Field();
 		Snake& get_Snake();

@@ -14,6 +14,7 @@ struct Snake {
 		Tail tail;
 	public:
 		void go(direction d, action a);
+		void reset(size_t x, size_t y);
 	public:
 		Tail& get_Tail();
 		Head& get_Head();

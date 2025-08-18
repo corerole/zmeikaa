@@ -8,51 +8,51 @@
 #include "../Vertex/Vertex.h"
 #include <memory>
 
+#if 1
 struct App_Buffers {
 	private:
-		std::unique_ptr<vk::raii::Buffer>					VertexBuffer;
-		std::unique_ptr<vk::raii::DeviceMemory>		VertexBufferMemory;
-		std::unique_ptr<vk::raii::Buffer>					IndicesBuffer;
-		std::unique_ptr<vk::raii::DeviceMemory>		IndicesBufferMemory;
+		std::unique_ptr<vk::raii::Buffer> VertexBuffer;
+		std::unique_ptr<vk::raii::DeviceMemory> VertexBufferMemory;
+		std::unique_ptr<vk::raii::Buffer> IndicesBuffer;
+		std::unique_ptr<vk::raii::DeviceMemory> IndicesBufferMemory;
 	private:
-		bool																			DevicemapMemory2;
-		vk::raii::Device													&Device;
-		vk::raii::PhysicalDevice									&PhysDevice;
-		vk::raii::CommandPool											&CommandPool;
-		vk::raii::Queue														&GraphicsQueue;
+		bool DeviceMapMemory2;
 	private:
-		const std::vector<Vertex>									&Vertices;
-		const std::vector<unsigned short>					&Indices;
-#if 0
-	private:
-		void	createBuffer	(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
-		void	copyBuffer		(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
-#endif
+		void get_Buffers(
+			const vk::raii::Device& Device,
+			const vk::raii::PhysicalDevice& PhysDevice,
+			const std::vector<Vertex>& Vertices,
+			const std::vector<unsigned short>& Indices,
+			const vk::raii::CommandPool& CommandPool,
+			const vk::raii::Queue& GraphicsQueue
+		);
 	public:
-		void	create_buffers();
-	public:
-		
-		App_Buffers(vk::raii::Device					&Device_,
-								vk::raii::PhysicalDevice	&PhysDevice_,
-								vk::raii::CommandPool			&CommandPool_,
-								vk::raii::Queue						&GraphicsQueue_,
-								bool											d2, 
-								const std::vector<Vertex>				&Vertices_,
-								const std::vector<unsigned short>	&Indices_) : 
-								DevicemapMemory2(d2),
-								Device(Device_),
-								PhysDevice(PhysDevice_),
-								CommandPool(CommandPool_),
-								GraphicsQueue(GraphicsQueue_),
-								Vertices(Vertices_),
-								Indices(Indices_)
+		App_Buffers(
+			vk::raii::Device& device,
+			vk::raii::PhysicalDevice& physical_device,
+			vk::raii::CommandPool& commandpool,
+			vk::raii::Queue& graphics_queue,
+			bool d2, 
+			const std::vector<Vertex>	&Vertices,
+			const std::vector<unsigned short>	&Indices) 
+			:
+			DeviceMapMemory2(d2)
 		{
-			create_buffers();
+			get_Buffers(
+				device,
+				physical_device,
+				Vertices,
+				Indices,
+				commandpool,
+				graphics_queue
+			);
 		};
 
 		vk::raii::Buffer& get_VertexBuffer() { return *VertexBuffer; }
+		const vk::raii::Buffer& get_VertexBuffer() const { return *VertexBuffer; }
 		vk::raii::Buffer& get_IndexBuffer() { return *IndicesBuffer; }
-		// std::vector<unsigned short>* get_Indices() { return &Indices; }
+		const vk::raii::Buffer& get_IndexBuffer() const { return *IndicesBuffer; }
 };
+#endif
 
 #endif

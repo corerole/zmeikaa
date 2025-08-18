@@ -36,3 +36,7 @@ Tail& Snake::get_Tail() {
 	return tail;
 }
 
+void Snake::reset(size_t x, size_t y) {
+	tail.get().clear();
+	head.get() = std::make_pair(x, y);
+}

@@ -1,5 +1,7 @@
 #include "SyncObjects.hpp"
 
+#if 0
+
 App_SyncObjects::App_SyncObjects(std::vector<vk::Image> &SwapchainImages_,
 								vk::raii::Device &Device_,
 								uint32_t FramesInFlight_)
@@ -12,34 +14,25 @@ App_SyncObjects::App_SyncObjects(std::vector<vk::Image> &SwapchainImages_,
 }
 
 void App_SyncObjects::resize_ImagesInFlight() {
+	auto& ld = Device;
 	ImagesInFlight.clear();
-	vk::FenceCreateInfo fenceInfo{};
-	fenceInfo.sType = vk::StructureType::eFenceCreateInfo;
-	fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled;
-	size_t size = SwapchainImages.size();
-	for (size_t i = 0; i < size; ++i) { 
-			ImagesInFlight.push_back(std::move(Device.createFence(fenceInfo)));
-			// ImagesInFlight[i].clear();
-	}
+	auto create_fence = [&ld]() { return vk::raii::Fence(ld, vk::FenceCreateInfo(vk::FenceCreateFlagBits::eSignaled)); };
+	std::generate_n(std::back_inserter(ImagesInFlight), SwapchainImages.size(), create_fence);
 }
 
 void App_SyncObjects::update_SyncObjects() {
 	ImageAvailableSemaphores.clear();
 	RenderFinishedSemaphores.clear();
 	InFlightFences.clear();
-
-	vk::SemaphoreCreateInfo semaphoreInfo{};
-	semaphoreInfo.sType = vk::StructureType::eSemaphoreCreateInfo;
-
-	vk::FenceCreateInfo fenceInfo{};
-	fenceInfo.sType = vk::StructureType::eFenceCreateInfo;
-	fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled;
+	auto& ld = Device;
 
 	resize_ImagesInFlight();
-	
-	for (uint32_t i = 0; i < FramesInFlight; ++i) {
-		ImageAvailableSemaphores.push_back(std::move(Device.createSemaphore(semaphoreInfo)));
-		RenderFinishedSemaphores.push_back(std::move(Device.createSemaphore(semaphoreInfo)));
-		InFlightFences.push_back(std::move(Device.createFence(fenceInfo)));
-	}
+
+	auto create_semaphore = [&ld](){ return vk::raii::Semaphore(ld, vk::SemaphoreCreateInfo()); };
+	auto create_fence = [&ld](){ return vk::raii::Fence(ld, vk::FenceCreateInfo(vk::FenceCreateFlagBits::eSignaled)); };
+	std::generate_n(std::back_inserter(ImageAvailableSemaphores), FramesInFlight, create_semaphore);
+	std::generate_n(std::back_inserter(RenderFinishedSemaphores), FramesInFlight, create_semaphore);
+	std::generate_n(std::back_inserter(InFlightFences), FramesInFlight, create_fence);
 }
+
+#endif

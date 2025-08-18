@@ -8,6 +8,31 @@
 #include "../../Window/Window.hpp"
 #include "../QueueFamilies/QueueFamilies.hpp"
 
+namespace vk {
+	namespace supp {
+		vk::SurfaceFormatKHR get_SurfaceFormatKHR(
+			const vk::raii::PhysicalDevice& PhysDevice,
+			const vk::raii::SurfaceKHR& Surface
+		);
+
+		vk::Extent2D get_Extent2D(
+			const vk::raii::PhysicalDevice& PhysDevice,
+			const vk::raii::SurfaceKHR& Surface,
+			const App_Window& Wnd
+		);
+
+		vk::raii::SwapchainKHR get_Swapchain(
+			const vk::raii::Device& Device,
+			const vk::raii::PhysicalDevice& PhysDevice,
+			const vk::raii::SurfaceKHR& Surface,
+			const std::pair<uint32_t, uint32_t>& GaP,
+			const vk::SurfaceFormatKHR& SurfaceFormat,
+			const vk::Extent2D& Extent
+		);
+	}
+}
+
+#if 0
 struct App_Swapchain {
 	private:
 		std::unique_ptr<vk::raii::SwapchainKHR>			Swapchain;
@@ -33,6 +58,7 @@ struct App_Swapchain {
 						vk::raii::Device			&Device_,
 						App_QueueFamily				&qFamily_);
 };
+#endif
 
 #endif // !APP_SWAPCHAIN
 

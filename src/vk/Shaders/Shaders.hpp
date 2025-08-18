@@ -41,7 +41,7 @@ const std::vector<unsigned short> Indices = { 0, 1, 2, 2, 3, 0, 1, 4, 5, 5, 2, 1
 #endif
 #endif
 
-std::unique_ptr<vk::raii::ShaderModule> installShader(std::vector<char> ShaderCode, vk::raii::Device& Device);
+vk::raii::ShaderModule installShader(std::vector<char> ShaderCode, const vk::raii::Device& Device);
 std::vector<char> readFile(const char* Path);
 
 constexpr const char* VERTNAME = "C:\\Users\\CoreRole\\source\\repos\\Zmeika\\src\\vk\\Shaders\\simplest-v.vert.spv";

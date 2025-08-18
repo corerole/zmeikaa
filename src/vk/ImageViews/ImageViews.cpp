@@ -1,33 +1,51 @@
 #include "ImageViews.hpp"
 
+#if 0
 void App_ImageViews::update_SwapchainImages() {
 	SwapchainImages.clear();
 	SwapchainImages = Swapchain.getImages();
 }
+#endif
 
-void App_ImageViews::update_ImageViews() {
-	SwapchainImageViews.clear();
-	unsigned ImageCount = (unsigned)SwapchainImages.size();
-	dbgs << "Swap chain image count " << ImageCount << std::endl;
-	for (size_t i = 0; i < ImageCount; ++i) {
-		vk::ImageViewCreateInfo createInfo{};
-		createInfo.sType = vk::StructureType::eImageViewCreateInfo;
-		createInfo.image = SwapchainImages[i];
-		createInfo.viewType = vk::ImageViewType::e2D;
-		createInfo.format = SwapchainImageFormat;
-		createInfo.components.r = vk::ComponentSwizzle::eIdentity;
-		createInfo.components.g = vk::ComponentSwizzle::eIdentity;
-		createInfo.components.b = vk::ComponentSwizzle::eIdentity;
-		createInfo.components.a = vk::ComponentSwizzle::eIdentity;
-		createInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
-		createInfo.subresourceRange.baseMipLevel = 0;
-		createInfo.subresourceRange.levelCount = 1;
-		createInfo.subresourceRange.baseArrayLayer = 0;
-		createInfo.subresourceRange.layerCount = 1;
-		SwapchainImageViews.push_back(Device.createImageView(createInfo)); // is it?
+namespace vk {
+	namespace supp {
+		void set_ImageViews(
+			const vk::raii::Device& Device,
+			const vk::Format& SwapchainImageFormat,
+			const std::vector<vk::Image>& SwapchainImages,
+			std::vector<vk::raii::ImageView>& SwapchainImageViews
+		) {
+			SwapchainImageViews.clear();
+			unsigned ImageCount = (unsigned)SwapchainImages.size();
+			dbgs << "Swap chain image count " << ImageCount << std::endl;
+			for (size_t i = 0; i < ImageCount; ++i) {
+				vk::ImageViewCreateInfo createInfo(
+					vk::ImageViewCreateFlags{},
+					SwapchainImages[i],
+					vk::ImageViewType::e2D,
+					SwapchainImageFormat,
+					{ // vk::ComponentMapping
+						vk::ComponentSwizzle::eIdentity, // r
+						vk::ComponentSwizzle::eIdentity, // g
+						vk::ComponentSwizzle::eIdentity, // b
+						vk::ComponentSwizzle::eIdentity  // a
+					},
+					{ // vk::ImageSubresourceRange
+						vk::ImageAspectFlagBits::eColor, // aspectMask
+						0, // baseMipLevel
+						1, // levelCount
+						0, // baseArrayLayer
+						1  // layerCount
+					},
+					nullptr // pNext
+				);
+				SwapchainImageViews.push_back(vk::raii::ImageView(Device, createInfo)); // is it?
+			}
+		}
 	}
 }
 
+#if 0
 void App_ImageViews::update() {
 	update_SwapchainImages();
 	update_ImageViews();
@@ -37,9 +55,15 @@ App_ImageViews::App_ImageViews(vk::raii::Device &Device_,
 	vk::raii::SwapchainKHR& Swapchain_,
 	vk::SurfaceFormatKHR& SurfaceFormat_,
 	vk::Extent2D& Extent_)
-	: Device(Device_), Swapchain(Swapchain_), SurfaceFormat(SurfaceFormat_), Extent(Extent_)
+	:
+	Device(Device_),
+	Swapchain(Swapchain_),
+	SurfaceFormat(SurfaceFormat_),
+	Extent(Extent_)
 {
 	SwapchainExtent = Extent_;
 	SwapchainImageFormat = SurfaceFormat_.format;
 	update();
 }
+
+#endif

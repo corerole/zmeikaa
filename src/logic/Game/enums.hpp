@@ -21,7 +21,8 @@ enum class direction : size_t {
 enum class action : size_t {
 	eMove = 0,
 	eGrow = 1,
-	eGameOver = 2
+	eGameOver = 2,
+	eUnknown
 };
 
 #endif 

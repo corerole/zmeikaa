@@ -6,6 +6,16 @@
 #include <memory>
 #include "../QueueFamilies/QueueFamilies.hpp"
 
+namespace vk {
+	namespace supp {
+		vk::raii::CommandPool get_CommandPool(
+			const vk::raii::Device& Device,
+			const std::pair<uint32_t, uint32_t>& GaP
+		);
+	}
+}
+
+#if 0
 struct App_CommandPool {
 	private:
 		std::unique_ptr<vk::raii::CommandPool> CommandPool;
@@ -18,6 +28,7 @@ struct App_CommandPool {
 		vk::raii::CommandPool& get() { return *CommandPool; }
 		App_CommandPool(vk::raii::Device &Device_, App_QueueFamily& qFamily_);
 };
+#endif
 
 #endif // !APP_COMMANDPOOL
 

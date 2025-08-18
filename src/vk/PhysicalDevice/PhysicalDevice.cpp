@@ -1,6 +1,16 @@
 #include "PhysicalDevice.hpp"
 
-App_PhysicalDevice::App_PhysicalDevice(vk::raii::Instance& Instance_) : Instance(Instance_) {
+namespace vk {
+  namespace supp {
+    vk::raii::PhysicalDevice get_PhysicalDevice(const vk::raii::Instance& instance) {
+      auto PhysicalDevices = instance.enumeratePhysicalDevices();
+      return PhysicalDevices[0];
+    }
+  }
+}
+
+#if 0
+App_PhysicalDevice::App_PhysicalDevice(vk::raii::Instance& Instance) {
     std::vector<vk::raii::PhysicalDevice> PhysicalDevices = Instance.enumeratePhysicalDevices();
 #if 0
     unsigned deviceCount = 0;
@@ -20,3 +30,4 @@ App_PhysicalDevice::App_PhysicalDevice(vk::raii::Instance& Instance_) : Instance
 }
 
 vk::raii::PhysicalDevice& App_PhysicalDevice::get() { return *PhysicalDevice; }
+#endif

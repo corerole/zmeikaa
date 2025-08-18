@@ -12,6 +12,7 @@ Field::Field(size_t width_, size_t height_, Snake& snake_)
 std::vector<size_t>& Field::get() { return field; }
 
 void Field::print_field() {
+	dbgs << "\x1B[2J\x1B[H";
 	size_t h = height;
 	size_t w = width;
 	for (size_t i = 0; i < h; ++i) {
@@ -78,28 +79,39 @@ void Field::add_snake(Snake& s) {
 objects Field::get_new_cell(direction d) {
 	std::pair<size_t, size_t> tmp = snake.get_Head().get();
 	size_t nx = 99, ny = 99, res = 99;
+	objects ret;
 	switch(d) {
 		case (direction::eUp): 
 			nx = tmp.first;
 			ny = tmp.second + 1;
 			res = get_cell(nx, ny);
-			return objects(res);
+			ret = objects(res);
+			return ret;
 		case (direction::eDown):
 			nx = tmp.first;
 			ny = tmp.second - 1;
 			res = get_cell(nx, ny);
-			return objects(res);
+			ret = objects(res);
+			return ret;
 		case (direction::eLeft):
 			nx = tmp.first - 1;
 			ny = tmp.second;
 			res = get_cell(nx, ny);
-			return objects(res);
+			ret = objects(res);
+			return ret;
 		case (direction::eRight):
 			nx = tmp.first + 1;
 			ny = tmp.second;
 			res = get_cell(nx, ny);
-			return objects(res);
+			ret = objects(res);
+			return ret;
 		default: {}
 	}
 	return objects(99);
+}
+
+void Field::reset() {
+	for(auto& x : field) { x = 0; }
+	gen_borders();
+	add_snake(snake);
 }

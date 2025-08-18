@@ -5,6 +5,12 @@
 #include <vulkan/vulkan_raii.hpp>
 #include <memory>
 
+namespace vk {
+	namespace supp {
+	}
+}
+
+#if 0
 struct App_LogicalQueue {
 	private:
 		std::unique_ptr<vk::raii::Queue> PresentQueue;
@@ -14,5 +20,6 @@ struct App_LogicalQueue {
 		vk::raii::Queue& getPresentQueue() { return *PresentQueue; }
 		App_LogicalQueue(vk::raii::Device& Device, App_QueueFamily& qFamily);
 };
+#endif
 
 #endif

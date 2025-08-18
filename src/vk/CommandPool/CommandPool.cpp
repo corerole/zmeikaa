@@ -1,14 +1,21 @@
 #include "CommandPool.hpp"
 
-
-static std::unique_ptr<vk::raii::CommandPool> create_CommandPool(vk::raii::Device& Device, App_QueueFamily& qFamily) {
-	vk::CommandPoolCreateInfo createInfo{};
-	createInfo.sType = vk::StructureType::eCommandPoolCreateInfo;
-	createInfo.flags = vk::CommandPoolCreateFlags();
-	createInfo.queueFamilyIndex = qFamily.get_GraphicsFamily();
-	return std::make_unique<vk::raii::CommandPool>(Device, createInfo);
+namespace vk {
+	namespace supp {
+		vk::raii::CommandPool get_CommandPool(
+			const vk::raii::Device& Device,
+			const std::pair<uint32_t, uint32_t>& GaP
+		) {
+			vk::CommandPoolCreateInfo createInfo{};
+			createInfo.sType = vk::StructureType::eCommandPoolCreateInfo;
+			createInfo.flags = vk::CommandPoolCreateFlags();
+			createInfo.queueFamilyIndex = GaP.first;
+			return vk::raii::CommandPool(Device, createInfo);
+		}
+	}
 }
 
+#if 0
 void App_CommandPool::update_CommandPool() {
 	CommandPool = create_CommandPool(Device, qFamily);
 }
@@ -19,3 +26,4 @@ App_CommandPool::App_CommandPool(vk::raii::Device	&Device_,
 		update_CommandPool();
     dbgs << "Command Pool Created!\n";
 }
+#endif

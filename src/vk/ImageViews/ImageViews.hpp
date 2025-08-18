@@ -5,6 +5,18 @@
 #include <vulkan/vulkan_raii.hpp>
 #include <vector>
 
+namespace vk {
+	namespace supp {
+		void set_ImageViews(
+			const vk::raii::Device& Device,
+			const vk::Format& SwapchainImageFormat,
+			const std::vector<vk::Image>& SwapchainImages,
+			std::vector<vk::raii::ImageView>& SwapchainImageViews
+		);
+	}
+}
+
+#if 0
 struct App_ImageViews {
 	private:
 		std::vector<vk::raii::ImageView> SwapchainImageViews;
@@ -30,5 +42,6 @@ struct App_ImageViews {
 	public:
 		App_ImageViews(vk::raii::Device& Device_, vk::raii::SwapchainKHR& Swapchain_, vk::SurfaceFormatKHR& SurfaceFormat_, vk::Extent2D& Extent_);
 };
+#endif
 
 #endif // !APP_IMAGEVIEWS

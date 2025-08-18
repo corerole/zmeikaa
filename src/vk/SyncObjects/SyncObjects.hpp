@@ -3,8 +3,10 @@
 
 #include "../../trash/dbg.h"
 #include <vulkan/vulkan_raii.hpp>
+#include <algorithm>
 #include <vector>
 
+#if 0
 struct App_SyncObjects {
 	private:
 		std::vector<vk::raii::Semaphore>	ImageAvailableSemaphores;
@@ -25,5 +27,6 @@ struct App_SyncObjects {
 		std::vector<vk::raii::Fence>& get_InFlightFences() { return InFlightFences; }
 		std::vector<vk::raii::Fence>& get_ImagesInFlight() { return ImagesInFlight; }
 };
+#endif
 
 #endif
