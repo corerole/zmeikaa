@@ -42,10 +42,7 @@ static inline std::vector<vk::raii::CommandBuffer> proxy_init_CommandBuffers(
 	const vk::raii::Device& device,
 	const vk::raii::RenderPass& renderpass,
 	const vk::Extent2D& extent,
-	const vk::raii::Pipeline& pipeline,
-	const vk::raii::Buffer& VertexBuffer,
-	const vk::raii::Buffer& IndexBuffer,
-	const std::vector<unsigned short>& Indices
+	const std::vector<vk::supp::CommandBufferData>& commandBufferData
 ) {
 	std::vector<vk::raii::CommandBuffer> command_buffers;
 	vk::supp::set_CommandBuffers(
@@ -55,10 +52,7 @@ static inline std::vector<vk::raii::CommandBuffer> proxy_init_CommandBuffers(
 		device,
 		renderpass,
 		extent,
-		pipeline,
-		VertexBuffer,
-		IndexBuffer,
-		Indices
+		commandBufferData
 	);
 	return command_buffers;
 }
@@ -66,7 +60,8 @@ std::vector<vk::raii::Framebuffer> proxy_init_SwapchainFramebuffers(
 	const vk::raii::Device& device,
 	const vk::raii::RenderPass& renderpass,
 	const vk::Extent2D& extent,
-	const std::vector<vk::raii::ImageView>& swapchain_imageviews
+	const std::vector<vk::raii::ImageView>& swapchain_imageviews,
+	const vk::raii::ImageView& depthImageView
 ) {
 	std::vector<vk::raii::Framebuffer> swapchain_framebuffers;
 	vk::supp::set_SwapchainFramebuffers(
@@ -74,7 +69,8 @@ std::vector<vk::raii::Framebuffer> proxy_init_SwapchainFramebuffers(
 		device,
 		renderpass,
 		extent,
-		swapchain_imageviews
+		swapchain_imageviews,
+		depthImageView
 	);
 	return swapchain_framebuffers;
 }
@@ -96,13 +92,7 @@ struct App_Renderer {
 		const std::pair<uint32_t, uint32_t>& GaPFQ;
 		const vk::SurfaceFormatKHR& surface_format;
 		vk::Extent2D& extent;
-		const vk::raii::ShaderModule& StoredVertexID;
-		const vk::raii::ShaderModule& StoredFragmentID;
-		const vk::raii::PipelineCache& pipeline_cache;
-		const vk::raii::PipelineLayout& pipeline_layout;
 		const vk::raii::CommandPool& commandpool;
-		const vk::raii::Buffer& VertexBuffer;
-		const vk::raii::Buffer& IndexBuffer;
 		const vk::raii::Queue& graphics_queue;
 		const vk::raii::Queue& present_queue;
 	private:
@@ -112,9 +102,10 @@ struct App_Renderer {
 		bool& FramebufferResized;
 	private:
 		std::unique_ptr<vk::raii::SwapchainKHR> upSwapchain;
-		std::unique_ptr<vk::raii::RenderPass> upRenderpass;
-		std::unique_ptr<vk::raii::Pipeline> upPipeline;
+		const vk::raii::RenderPass& renderpass;
+		const vk::raii::ImageView& depthImageView;
 	private:
+		const std::vector<vk::supp::CommandBufferData>& commandBufferData;
 		std::vector<vk::Image> swapchain_images;
 		std::vector<vk::raii::ImageView> swapchain_imageviews;
 		std::vector<vk::raii::Framebuffer> swapchain_framebuffers;
@@ -133,13 +124,10 @@ struct App_Renderer {
 			const std::pair<uint32_t, uint32_t>& GaPFQ,
 			const vk::SurfaceFormatKHR& surface_format,
 			vk::Extent2D& extent,
-			const vk::raii::ShaderModule& StoredVertexID,
-			const vk::raii::ShaderModule& StoredFragmentID,
-			const vk::raii::PipelineCache& pipeline_cache,
-			const vk::raii::PipelineLayout& pipeline_layout,
+			const vk::raii::RenderPass& renderpass,
+			const vk::raii::ImageView& depthImageView,
+			const std::vector<vk::supp::CommandBufferData>& commandBufferData,
 			const vk::raii::CommandPool& commandpool,
-			const vk::raii::Buffer& VertexBuffer,
-			const vk::raii::Buffer& IndexBuffer,
 			const vk::raii::Queue& graphics_queue,
 			const vk::raii::Queue& present_queue,
 			GLFWwindow* window,
@@ -152,13 +140,10 @@ struct App_Renderer {
 		GaPFQ(GaPFQ),
 		surface_format(surface_format),
 		extent(extent),
-		StoredVertexID(StoredVertexID),
-		StoredFragmentID(StoredFragmentID),
-		pipeline_cache(pipeline_cache),
-		pipeline_layout(pipeline_layout),
+		renderpass(renderpass),
+		depthImageView(depthImageView),
+		commandBufferData(commandBufferData),
 		commandpool(commandpool),
-		VertexBuffer(VertexBuffer),
-		IndexBuffer(IndexBuffer),
 		graphics_queue(graphics_queue),
 		present_queue(present_queue),
 		window(window),
@@ -176,27 +161,6 @@ struct App_Renderer {
 				)
 			)
 		),
-		upRenderpass(
-			std::make_unique<vk::raii::RenderPass>(
-				vk::supp::get_RenderPass(
-					device,
-					surface_format.format
-				)
-			)
-		),
-		upPipeline(
-			std::make_unique<vk::raii::Pipeline>(
-				vk::supp::get_PipeLine(
-					device,
-					StoredVertexID,
-					StoredFragmentID,
-					extent,
-					*upRenderpass,
-					pipeline_cache,
-					pipeline_layout
-				)
-			)
-		),
 		swapchain_images((*upSwapchain).getImages()),
 		swapchain_imageviews(
 			proxy_init_ImageViews(
@@ -208,9 +172,10 @@ struct App_Renderer {
 		swapchain_framebuffers(
 			proxy_init_SwapchainFramebuffers(
 				device,
-				*upRenderpass,
+				renderpass,
 				extent,
-				swapchain_imageviews
+				swapchain_imageviews,
+				depthImageView
 			)
 		),
 		command_buffers(
@@ -218,92 +183,14 @@ struct App_Renderer {
 				swapchain_framebuffers,
 				commandpool,
 				device,
-				*upRenderpass,
+				renderpass,
 				extent,
-				*upPipeline,
-				VertexBuffer,
-				IndexBuffer,
-				Indices
+				commandBufferData
 			)
 		)
 		{
 			update_SyncObjects();
-#if 0
-			vk::supp::set_CommandBuffers(
-				command_buffers,
-				swapchain_framebuffers,
-				commandpool,
-				device,
-				renderpass,
-				extent,
-				pipeline,
-				VertexBuffer,
-				IndexBuffer,
-				Indices
-			);
-#endif
 		}
 };
-
-#if 0
-struct App_Renderer {
-	private:
-		size_t							CurrentFrame = 0;
-		bool								*FramebufferResized;
-		uint32_t						*FramesInFlight;
-	private:
-		void								create_swap_chain();
-		void								update_swap_chain();
-	private:
-		App_Window					&Window;
-		App_CommandPool			&vk_CommandPool;
-		App_LogicalDevice		&vk_LogicalDevice;
-		App_SyncObjects			&vk_SyncObjects;
-		App_Swapchain				&vk_Swapchain;
-		App_ImageViews			&vk_ImageViews;
-		App_RenderPass			&vk_RenderPass;
-		App_PipeLines				&vk_PipeLines;
-		App_Framebuffer			&vk_Framebuffer;
-		App_CommandBuffers	&vk_CommandBuffers;
-		App_LogicalQueue		&vk_LogicalQueues;
-		App_Buffers					&vk_Buffers;
-	public:
-		void render_frame();
-	public:
-		App_Renderer(
-			App_Window							&Window_,
-			App_CommandPool					&vk_CommandPool_,
-			App_LogicalDevice				&vk_LogicalDevice_,
-			App_SyncObjects					&vk_SyncObjects_,
-			App_Swapchain						&vk_Swapchain_,
-			App_ImageViews					&vk_ImageViews_,
-			App_RenderPass					&vk_RenderPass_,
-			App_PipeLines						&vk_PipeLines_,
-			App_Framebuffer					&vk_Framebuffer_,
-			App_CommandBuffers			&vk_CommandBuffers_,
-			App_LogicalQueue				&vk_LogicalQueues_,
-			App_Buffers							&vk_Buffers_,
-			uint32_t								*FramesInFlight_)
-			
-			:
-
-			Window(Window_),
-			vk_CommandPool(vk_CommandPool_),
-			vk_LogicalDevice(vk_LogicalDevice_),
-			vk_SyncObjects(vk_SyncObjects_),
-			vk_Swapchain(vk_Swapchain_),
-			vk_ImageViews(vk_ImageViews_),
-			vk_RenderPass(vk_RenderPass_),
-			vk_PipeLines(vk_PipeLines_),
-			vk_Framebuffer(vk_Framebuffer_),
-			vk_CommandBuffers(vk_CommandBuffers_),
-			vk_LogicalQueues(vk_LogicalQueues_),
-			vk_Buffers(vk_Buffers_)
-		{
-				FramebufferResized = Window.get_frabuffer_resized();
-				FramesInFlight = FramesInFlight_;
-		}
-};
-#endif
 
 #endif // !APP_RENDERER

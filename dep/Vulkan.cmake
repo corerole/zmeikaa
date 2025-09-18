@@ -8,7 +8,6 @@ target_sources(VulkanHppModule PRIVATE
 )
 
 include_directories(${Vulkan_INCLUDE_DIR})
-# link_directories()
 
-target_compile_features( VulkanHppModule PUBLIC cxx_std_20 )
+target_compile_features( VulkanHppModule PUBLIC cxx_std_23 )
 target_link_libraries( VulkanHppModule PUBLIC Vulkan::Vulkan )

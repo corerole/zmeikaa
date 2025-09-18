@@ -3,10 +3,34 @@
 namespace vk {
 	namespace supp {
 		vk::raii::SurfaceKHR get_Surface(GLFWwindow* window, const vk::raii::Instance& instance) {
+#if 1
 			VkSurfaceKHR Surface_;
 			VkResult res = glfwCreateWindowSurface(*instance, window, nullptr, &Surface_);
-			if (res) { std::cout << "Broken Instance! | code: " << res << "\n"; }
+			if (res) { throw vulkan_error(static_cast<vk::Result>(res), "Can not create vk::SurfaceKHR ! | code: "); }
 			return vk::raii::SurfaceKHR(instance, std::move(Surface_));
+#else
+			vk::DisplaySurfaceCreateFlagsKHR flag; // = vk::DisplaySurfaceCreateFlagBitsKHR:: /* empty */;
+			vk::DisplayModeKHR displayMode;
+			uint32_t planeIndex = 0u;
+			uint32_t planeStackIndex = 0u;
+			vk::SurfaceTransformFlagBitsKHR transform = vk::SurfaceTransformFlagBitsKHR::eIdentity;
+			float globalAlpha = 0.0f;
+			vk::DisplayPlaneAlphaFlagBitsKHR alphaMode = vk::DisplayPlaneAlphaFlagBitsKHR::eOpaque;
+			vk::Extent2D imageExtent(0u, 0u);
+
+			vk::DisplaySurfaceCreateInfoKHR createInfo(
+				flag,
+				displayMode,
+				planeIndex,
+				planeStackIndex,
+				transform,
+				globalAlpha,
+				alphaMode,
+				imageExtent
+			);
+
+			return vk::raii::SurfaceKHR(instance, createInfo);
+#endif
 		}
 	}
 }

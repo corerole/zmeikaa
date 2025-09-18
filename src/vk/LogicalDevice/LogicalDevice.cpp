@@ -16,8 +16,8 @@ namespace vk {
 			std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;
 
 			const std::vector<const char*> deviceExtensions = {
-				VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-				VK_KHR_MAP_MEMORY_2_EXTENSION_NAME
+				VK_KHR_SWAPCHAIN_EXTENSION_NAME
+				// VK_KHR_MAP_MEMORY_2_EXTENSION_NAME
 			};
 
 			float queuePriority = 1.0f;

@@ -1,50 +1,54 @@
+#pragma once
 #ifndef APP_SHADERS
 #define APP_SHADERS
 
-#include "../../trash/dbg.h"
-#include <vulkan/vulkan_raii.hpp>
-#include <vector>
 #include <fstream>
-// #include <algorithm>
+#include <algorithm>
+#include <vector>
+#include <array>
+#include <vulkan/vulkan_raii.hpp>
+#include "../../trash/dbg.h"
 #include "../Vertex/Vertex.h"
+#include "../PipeLines/PipeLines.hpp"
+#include "../DescriptorSet/DescriptorSet.hpp"
+#include "../Buffers/Buffers.hpp"
+#include "simplest_v/simplest_v.hpp"
+#include "vkCube/vkCube.hpp"
 
+namespace vk {
+	namespace supp {
+		struct ShaderInstaller {
+			private:
+				const vk::raii::Device& Device;
+			public:
+				ShaderInstaller(const vk::raii::Device& Device) : Device(Device) {};
+				vk::raii::ShaderModule installShader(const std::vector<unsigned char>& ShaderCode);
+		};
 
-#if 0                                   // x       y 
-const std::vector<Vertex> Vertices = { {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-                                      {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-                                      {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-                                      {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}} };
-#else
-#if 1
-const std::vector<Vertex> Vertices = { {{-1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}},
-                                      {{1.0f, -1.0f}, {0.0f, 1.0f, 1.0f}},
-                                      {{1.0f, 1.0f}, {1.0f, 0.0f, 1.0f}},
-                                      {{-1.0f, 1.0f}, {1.0f, 1.0f, 0.0f}}};
-#else
-#if 0
-                                                                                     //     0           1           4
-const std::vector<Vertex> Vertices = { {{-1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}},         //  (-1 -1)    (0 -1)      (1 -1)      
-                                       {{0.0f, -1.0f},  {0.0f, 1.0f, 1.0f}},         //     3           2           5
-                                       {{0.0f, 1.0f},   {1.0f, 0.0f, 1.0f}},         //  (-1 1)     (0 1)       (1 1)
-                                       {{-1.0f, 1.0f},  {1.0f, 1.0f, 0.0f}},
-                                       {{1.0f, -1.0f},  {1.0f, 1.0f, 1.0f}},
-                                       {{1.0f, 1.0f},  {1.0f, 1.0f, 1.0f}} };
-#endif
-#endif
-#endif
+		struct SD {
+			std::vector<vk::raii::ShaderModule> shaderModules;
+			vk::raii::Pipeline pipeline;
+			vk::raii::DescriptorSetLayout descSetLayout;
+			vk::raii::PipelineLayout pipelineLayout;
+			vk::raii::PipelineCache pipelineCache;
+			std::vector<std::pair<vk::raii::Buffer, vk::raii::DeviceMemory>> buffers;
+			vk::raii::DescriptorPool descPool;
+			vk::raii::DescriptorSet descSet;
+		};
 
-#if 1
-const std::vector<unsigned short> Indices = { 0, 1, 2, 2, 3, 0 };
-#else
-#if 0 
-const std::vector<unsigned short> Indices = { 0, 1, 2, 2, 3, 0, 1, 4, 5, 5, 2, 1 };
-#endif
-#endif
+		struct ShaderData {
+			std::vector<SD> cb_data;
+		};
 
-vk::raii::ShaderModule installShader(std::vector<char> ShaderCode, const vk::raii::Device& Device);
-std::vector<char> readFile(const char* Path);
+		vk::supp::ShaderData collect_ShaderData(
+			vk::supp::PipelineCreater& pipelineCreater,
+			vk::supp::DescriptorSetLayoutCreater& descSetLayoutCreater,
+			vk::supp::BufferCreater& bufferCreater,
+			vk::supp::ShaderInstaller& shaderInstaller,
+			vk::supp::DescritorPoolCreator& descPoolCreater
+		);
 
-constexpr const char* VERTNAME = "C:\\Users\\CoreRole\\source\\repos\\Zmeika\\src\\vk\\Shaders\\simplest-v.vert.spv";
-constexpr const char* FRAGNAME = "C:\\Users\\CoreRole\\source\\repos\\Zmeika\\src\\vk\\Shaders\\simplest-v.frag.spv";
+	} // ns supp
+} // ns vk
 
 #endif // !APP_SHADERS

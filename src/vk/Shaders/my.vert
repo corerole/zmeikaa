@@ -1,6 +1,7 @@
+
+
 layout (loaction = 0) in vec3 aPos;
 layout (loaction = 0) in vec3 aColour;
-
 layout (loaction = 0) out vec3 vColour;
 
 layout (std140) uniform Matrices {

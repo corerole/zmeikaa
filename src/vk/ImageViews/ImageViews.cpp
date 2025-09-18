@@ -22,7 +22,7 @@ namespace vk {
 				vk::ImageViewCreateInfo createInfo(
 					vk::ImageViewCreateFlags{},
 					SwapchainImages[i],
-					vk::ImageViewType::e2D,
+					vk::ImageViewType::e3D,
 					SwapchainImageFormat,
 					{ // vk::ComponentMapping
 						vk::ComponentSwizzle::eIdentity, // r
@@ -39,7 +39,7 @@ namespace vk {
 					},
 					nullptr // pNext
 				);
-				SwapchainImageViews.push_back(vk::raii::ImageView(Device, createInfo)); // is it?
+				SwapchainImageViews.emplace_back(Device, createInfo);
 			}
 		}
 	}

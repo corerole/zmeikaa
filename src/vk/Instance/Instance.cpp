@@ -51,7 +51,7 @@ static std::vector<const char*> get_extension() {
 
 static std::vector<const char*> get_layers() {
 	std::vector<const char*> layersNames = {
-		"VK_LAYER_KHRONOS_validation\0"
+	//	"VK_LAYER_KHRONOS_validation\0"
 	};
 
 	dbgs << "Enabled Layers:\n";

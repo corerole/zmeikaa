@@ -2,7 +2,7 @@
 #define APP_WINDOW_H
 
 #include <stdexcept>
-#include <vulkan/vulkan_raii.hpp>
+// #include <vulkan/vulkan_raii.hpp>
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -10,8 +10,8 @@
 typedef void (*kcb)(GLFWwindow*, int, int, int, int);
 
 struct App_Window_Config {
-	size_t width = 1920;
-	size_t height = 1080;
+	size_t width = 2560;
+	size_t height = 1440;
 };
 
 struct FramebufferSize {
@@ -20,7 +20,9 @@ struct FramebufferSize {
 		uint32_t height;
 	public:
 		uint32_t getWidth() { return width; };
+		const uint32_t getWidth() const { return width; };
 		uint32_t getHeight() { return height; };
+		const uint32_t getHeight() const { return height; };
 		FramebufferSize(uint32_t width_, uint32_t height_) : width(width_), height(height_) {};
 };
 

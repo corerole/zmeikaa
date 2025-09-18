@@ -1,15 +1,12 @@
 #ifndef MY_DBG
 #define MY_DBG
 
-#include <vulkan/vulkan_raii.hpp>
 #include <iostream> // cout endl
 #include <stdexcept> // runtime_error
 #include <string> // string
 #include <sstream> // ostringstream
 
-#ifdef GLFW_INCLUDE_VULKAN
-#undef GLFW_INCLUDE_VULKAN
-#endif
+#include <vulkan/vulkan_raii.hpp>
 
 #define ANALYZE 1
 

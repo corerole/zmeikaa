@@ -1,19 +1,8 @@
 #include "main.hpp"
 
-Game* obj;
-
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-	Game& snake = (*obj);
-	if(action == GLFW_PRESS) {
-		snake.process(key);
-	}
-}
-
 int main() try {
-		Game snake;
-		obj = &snake;
+		// Game snake;
 		App_Window Window;
-		Window.set_key_callback(&key_callback);
 		run_vk(Window);
 		return 0;
 

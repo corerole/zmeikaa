@@ -59,14 +59,15 @@ namespace vk {
 
 			SurfaceFormat = formats[0];
 			auto lmbd = [](const auto& f) {
-				bool fst = (f.format == vk::Format::eB8G8R8A8Srgb);
+				bool fst = (f.format == vk::Format::eR8G8B8A8Srgb);// brga srgb
 				bool snd = (f.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear);
 				return (fst && snd);
 			};
 			auto res = std::find_if(formats.begin(), formats.end(), lmbd);
 
 			if (res != formats.end()) {
-				dbgs << "B8G8R8A8_SRGB available\n";
+				//dbgs << "B8G8R8A8_SRGB available\n";
+				dbgs << "R8G8B8A8_SRGB available\n";
 				SurfaceFormat = *res;
 			}
 

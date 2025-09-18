@@ -12,7 +12,8 @@ namespace vk {
 			const vk::raii::Device& Device,
 			const vk::raii::RenderPass& RenderPass,
 			const vk::Extent2D& SwapchainExtent,
-			const std::vector<vk::raii::ImageView>& SwapchainImageViews
+			const std::vector<vk::raii::ImageView>& SwapchainImageViews,
+			const vk::raii::ImageView& DepthImageView
 		);
 	}
 }
