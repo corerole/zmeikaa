@@ -6,4 +6,4 @@ include("${CMAKE_CURRENT_LIST_DIR}/vk/vk.cmake")
 add_executable (zmeikaa "src/main.cpp" "src/main.hpp")
 target_link_libraries(zmeikaa PRIVATE Window vk Vulkan::Vulkan)
 
-#test sig
+#test sig0
