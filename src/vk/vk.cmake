@@ -19,7 +19,7 @@ include ("${CMAKE_CURRENT_LIST_DIR}/CommandBuffers/CommandBuffers.cmake")
 include ("${CMAKE_CURRENT_LIST_DIR}/SyncObjects/SyncObjects.cmake")
 include ("${CMAKE_CURRENT_LIST_DIR}/Renderer/Renderer.cmake")
 include ("${CMAKE_CURRENT_LIST_DIR}/DescriptorSet/DescriptorSet.cmake")
-
+include ("${CMAKE_CURRENT_LIST_DIR}/Shaders/vkCube/vkCube.cmake")
 
 add_library(vk STATIC "${CMAKE_CURRENT_LIST_DIR}/vk.cpp")
 target_link_libraries(vk PRIVATE Vulkan::Vulkan
@@ -46,5 +46,6 @@ target_link_libraries(vk PRIVATE Vulkan::Vulkan
 	Swapchain
 	SyncObjects
 	Vertex
+	vkCube
 )
 

@@ -10,7 +10,6 @@
 
 #if 1
 namespace vkcube {
-
 	const std::vector<float> vVertices = {
 		// front
 		-1.0f, -1.0f, +1.0f, // point blue

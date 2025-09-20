@@ -21,6 +21,7 @@ namespace vkcube {
 		float aspect = static_cast<float>(extent.width) / static_cast<float>(extent.height);
 		// glm::mat4 projection = glm::frustum(-2.8f, 2.8f, -2.8f * aspect, 2.8f * aspect, 6.0f, 10.0f);
 		glm::mat4 projection = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 100.0f);
+		// projection[1][1] *= -1;
 
 		ubo.modelviewprojection = projection * ubo.modelview;
 #if 0

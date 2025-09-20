@@ -13,7 +13,7 @@
 #include "../DescriptorSet/DescriptorSet.hpp"
 #include "../Buffers/Buffers.hpp"
 #include "simplest_v/simplest_v.hpp"
-#include "vkCube/vkCube.hpp"
+// #include "vkCube/vkCube.hpp"
 
 namespace vk {
 	namespace supp {
@@ -24,7 +24,7 @@ namespace vk {
 				ShaderInstaller(const vk::raii::Device& Device) : Device(Device) {};
 				vk::raii::ShaderModule installShader(const std::vector<unsigned char>& ShaderCode);
 		};
-
+#if 0
 		struct SD {
 			std::vector<vk::raii::ShaderModule> shaderModules;
 			vk::raii::Pipeline pipeline;
@@ -47,7 +47,7 @@ namespace vk {
 			vk::supp::ShaderInstaller& shaderInstaller,
 			vk::supp::DescritorPoolCreator& descPoolCreater
 		);
-
+#endif
 	} // ns supp
 } // ns vk
 

@@ -14,6 +14,7 @@ namespace {
 
 namespace vk {
 	namespace supp {
+#if 0
 		vk::supp::ShaderData collect_ShaderData(
 			vk::supp::PipelineCreater& pipelineCreater,
 			vk::supp::DescriptorSetLayoutCreater& descSetLayoutCreater,
@@ -23,6 +24,7 @@ namespace vk {
 		) {
 			vk::supp::ShaderData shaderData;
 			{
+
 				std::vector<vk::raii::ShaderModule> shaderModules;
 				shaderModules.push_back(shaderInstaller.installShader(vkcube::vert));
 				shaderModules.push_back(shaderInstaller.installShader(vkcube::frag));
@@ -39,7 +41,7 @@ namespace vk {
 				std::array<vk::DescriptorSetLayout, 1> ls = { *descSetLayout };
 
 				auto descSets = descPoolCreater.allocate_DescriptorSets(descPool, ls);
-				
+
 				std::vector<std::pair<vk::raii::Buffer, vk::raii::DeviceMemory>> buffers;
 
 				buffers.push_back(vkcube::get_Buffers_vkCube(bufferCreater));
@@ -67,9 +69,11 @@ namespace vk {
 					std::move(descSets[0])
 				};
 				shaderData.cb_data.push_back(std::move(sd));
+
 			}
 			return shaderData;
 		}
+#endif
 
 		vk::raii::ShaderModule ShaderInstaller::installShader(const std::vector<unsigned char>& ShaderCode) {
 			vk::ShaderModuleCreateInfo createInfo{};

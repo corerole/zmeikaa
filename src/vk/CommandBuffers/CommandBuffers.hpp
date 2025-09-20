@@ -20,7 +20,7 @@ namespace vk {
 		);
 
 		struct CommandBufferData {
-			void* data = nullptr;
+			const void* data = nullptr;
 			commandBufferUpdateFunc f;
 		};
 

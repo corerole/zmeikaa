@@ -56,7 +56,7 @@ static inline std::vector<vk::raii::CommandBuffer> proxy_init_CommandBuffers(
 	);
 	return command_buffers;
 }
-std::vector<vk::raii::Framebuffer> proxy_init_SwapchainFramebuffers(
+static inline std::vector<vk::raii::Framebuffer> proxy_init_SwapchainFramebuffers(
 	const vk::raii::Device& device,
 	const vk::raii::RenderPass& renderpass,
 	const vk::Extent2D& extent,

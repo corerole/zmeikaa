@@ -28,6 +28,14 @@ void run_vk(App_Window& wnd) {
 	vk::supp::ShaderInstaller shaderInstaller(device);
 	vk::supp::DescritorPoolCreator DescPoolCreater(device);
 
+	std::vector<vk::DescriptorPoolSize> descPoolSize(1);
+	descPoolSize[0].descriptorCount = 1;
+	descPoolSize[0].type = vk::DescriptorType::eUniformBuffer;
+	auto descPool = DescPoolCreater.create_DescriptorPool({}, descPoolSize);
+
+	vkcube::VkCube vkCube(device, shaderInstaller, renderpass, extent, bufferCreater, descPool, DescPoolCreater);
+
+#if 0
 	auto vkCube = vk::supp::collect_ShaderData(pipelineCreater, dSLC, bufferCreater, shaderInstaller, DescPoolCreater);
 
 	auto vVsize = vectorsizeof(vkcube::vVertices);
@@ -49,9 +57,10 @@ void run_vk(App_Window& wnd) {
 	vk::supp::CommandBufferData cbdata{};
 	cbdata.data = &vkcube_cbd;
 	cbdata.f = vkcube::vkCube_set_CommandBuffer;
-	
+#endif
+
 	std::vector<vk::supp::CommandBufferData> vcbd;
-	vcbd.push_back(std::move(cbdata));
+	vcbd.push_back(vkCube.get_CommandBufferData());
 
 #if 1
 	/* send to renderer update function's */

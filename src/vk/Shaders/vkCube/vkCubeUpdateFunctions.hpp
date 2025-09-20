@@ -15,8 +15,8 @@ namespace vkcube {
 	struct vkCube_CommandBufferData {
 		vk::raii::Pipeline& pipeline;
 		vk::raii::PipelineLayout& pipelineLayout;
-		std::array<vk::DeviceSize, 3> offsets = {};
-		std::pair<vk::raii::Buffer&, vk::raii::DeviceMemory&> buffer;
+		std::array<vk::DeviceSize, 3>& offsets;
+		std::pair<vk::raii::Buffer, vk::raii::DeviceMemory>& buffer;
 		vk::raii::DescriptorSet& descriptorSet;
 		std::chrono::steady_clock::time_point startTime;
 	};
