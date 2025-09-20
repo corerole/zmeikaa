@@ -1,11 +1,12 @@
 #ifndef VK_CUBE
 #define VK_CUBE
 
+#include "../../Buffers/Buffers.hpp"
+#include "../../DescriptorSet/DescriptorSet.hpp"
+#include "../Shaders.hpp"
 #include "vkCubeShaderSource.hpp"
 #include "vkCubeShaderData.hpp"
-// #include "vkCubePipeline.hpp"
 #include "vkCubeUpdateFunctions.hpp"
-// #include "vkCubeBuffer.hpp"
 
 namespace vkcube {
 	struct VkCube {
